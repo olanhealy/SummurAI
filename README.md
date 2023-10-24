@@ -1,5 +1,11 @@
-# Classified
+# SummurAi
 
-- Readme for the project
-- Overtime, will make this look very nice, and proper instructions on how to run our project
+``` This is a python with ML project by Kevin Collins && Olan Healy```
+
+---------------------------------------------------------------------------------
+
+### Pre reqs
+1. Have python installed
+2. Cd into SummurAi when cloned and run command 
+```pip install -r requirements.txt```
 
