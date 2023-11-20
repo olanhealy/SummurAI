@@ -1,12 +1,12 @@
-import os
 import customtkinter
 from tkinter import filedialog
-from pptx import Presentation  # Import the python-pptx library
+from pptx import Presentation
 
 def set_appearance_and_theme():
     customtkinter.set_appearance_mode("dark")
     customtkinter.set_default_color_theme("green")
 
+# Edit of read.py here in new method
 def process_powerpoint_file(file_path):
     formatted_lines = []
     default_font_size = 12
@@ -33,30 +33,30 @@ def process_powerpoint_file(file_path):
                         line_info["is_heading"] = True
                     formatted_lines.append(line_info)
 
-    output_file_path = "formatted_lines.txt"
+    output_text = ""
+    for line_info in formatted_lines:
+        text = line_info["text"]
+        is_heading = line_info["is_heading"]
+        is_bold = line_info["is_bold"]
+        is_italic = line_info["is_italic"]
+        is_underline = line_info["is_underline"]
 
-    with open(output_file_path, "w", encoding="utf-8") as output_file:
-        for line_info in formatted_lines:
-            text = line_info["text"]
-            is_heading = line_info["is_heading"]
-            is_bold = line_info["is_bold"]
-            is_italic = line_info["is_italic"]
-            is_underline = line_info["is_underline"]
+        output_text += "\n"
+        if is_heading:
+            output_text += f"H: {text}\n"
+        else:
+            output_text += f"T: {text}\n"
 
-            output_file.write("\n")
-            if is_heading:
-                output_file.write(f"H: {text}\n")
-            else:
-                output_file.write(f"T: {text}\n")
+        if is_bold:
+            output_text += "  - B\n"
+        if is_italic:
+            output_text += "  - I\n"
+        if is_underline:
+            output_text += "  - U\n"
 
-            if is_bold:
-                output_file.write("  - B\n")
-            if is_italic:
-                output_file.write("  - I\n")
-            if is_underline:
-                output_file.write("  - U\n")
-
-    print(f"PowerPoint file processed. Output saved to: {output_file_path}")
+    textbox.delete("1.0", "end")
+    textbox.insert("1.0", output_text)
+    print(f"PowerPoint file processed successfully. Content displayed in the textbox.")
 
 def select_pptx_file():
     file_path = filedialog.askopenfilename(
@@ -65,19 +65,15 @@ def select_pptx_file():
     )
     if file_path:
         label.configure(text='SUCCESS: Selected PowerPoint file', font=("Helvetica", 24))
-        process_powerpoint_file(file_path)
-        create_summurai_button()
+        create_summurai_button(file_path)
     else:
         label.configure(text='No file selected', font=("Helvetica", 24))
 
-def create_summurai_button():
-    button_summurai = customtkinter.CTkButton(master=frame, text="SummurAI", command=placeholder)
+def create_summurai_button(file_path):
+    button_summurai = customtkinter.CTkButton(master=frame, text="SummurAI", command=lambda: process_powerpoint_file(file_path))
     button_summurai.pack(pady=20, padx=0)
     print("SummurAI button created")
-
-def placeholder():
-    print("Debug")
-    # Add your code here
+    # Bug to solve
 
 def main():
     set_appearance_and_theme()
