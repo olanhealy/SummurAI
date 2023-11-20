@@ -7,7 +7,7 @@ def set_appearance_and_theme():
     customtkinter.set_default_color_theme("green")
 
 # Edit of read.py here in new method
-def process_powerpoint_file(file_path):
+def process_powerpoint_file(file_path, button_summurai):
     formatted_lines = []
     default_font_size = 12
 
@@ -57,23 +57,30 @@ def process_powerpoint_file(file_path):
     textbox.delete("1.0", "end")
     textbox.insert("1.0", output_text)
     print(f"PowerPoint file processed successfully. Content displayed in the textbox.")
+    if button_summurai[0]:
+        button_summurai[0].configure(state="normal", command=lambda: process_powerpoint_file(file_path, button_summurai))
 
-def select_pptx_file():
+def select_pptx_file(button_summurai):
     file_path = filedialog.askopenfilename(
         title="Select a .pptx file",
         filetypes=[("PowerPoint files", "*.pptx")]
     )
     if file_path:
         label.configure(text='SUCCESS: Selected PowerPoint file', font=("Helvetica", 24))
-        create_summurai_button(file_path)
+        create_summurai_button(file_path, button_summurai)
+        if button_summurai[0]:
+            button_summurai[0].configure(state="normal", command=lambda: process_powerpoint_file(file_path, button_summurai))
     else:
         label.configure(text='No file selected', font=("Helvetica", 24))
 
-def create_summurai_button(file_path):
-    button_summurai = customtkinter.CTkButton(master=frame, text="SummurAI", command=lambda: process_powerpoint_file(file_path))
-    button_summurai.pack(pady=20, padx=0)
-    print("SummurAI button created")
-    # Bug to solve
+def create_summurai_button(file_path, button_summurai):
+    if not button_summurai[0]:
+        button = customtkinter.CTkButton(master=frame, text="SummurAI", state="disabled")
+        button.pack(pady=20, padx=0)
+        button_summurai[0] = button
+        print("SummurAI button created")
+    else:
+        button_summurai[0].configure(command=lambda: process_powerpoint_file(file_path, button_summurai))
 
 def main():
     set_appearance_and_theme()
@@ -90,13 +97,14 @@ def main():
     label = customtkinter.CTkLabel(master=frame, text="Please select a .pptx file", font=("Helvetica", 24))
     label.pack(pady=20, padx=0)
 
-    global button
-    button = customtkinter.CTkButton(master=frame, text="Select PowerPoint File", command=select_pptx_file)
+    global button_summurai
+    button_summurai = [None]  
+    button = customtkinter.CTkButton(master=frame, text="Select PowerPoint File", command=lambda: select_pptx_file(button_summurai))
     button.pack(pady=20, padx=0)
     print("Select PowerPoint File button created")
 
     global textbox
-    textbox = customtkinter.CTkTextbox(master=frame, font=("Helvetica", 14), height=800, width=800)
+    textbox = customtkinter.CTkTextbox(master=frame, font=("Helvetica", 14), height=400, width=800)
     textbox.pack(pady=10, padx=0)
 
     root.mainloop()
