@@ -2,6 +2,9 @@ import customtkinter
 from tkinter import filedialog
 from pptx import Presentation
 from collections import Counter
+from transformers import pipeline
+
+#powerpoint processor class
 
 class PowerPointProcessor:
     def __init__(self, file_path, textbox, button_summurai):
@@ -9,17 +12,28 @@ class PowerPointProcessor:
         self.textbox = textbox
         self.button_summurai = button_summurai
 
+    def gpt2_summarization(self, text):
+        summarizer = pipeline("summarization")
+        summary = summarizer(text, max_length=150, min_length=50, length_penalty=2.0, num_beams=4)[0]['summary_text']
+        return summary
+
     def set_appearance_and_theme(self):
         customtkinter.set_appearance_mode("dark")
         customtkinter.set_default_color_theme("green")
 
     def get_font_size(self, paragraph):
+        """
+        Get the font size of a paragraph in points.
+        """
         font_size = None
         if paragraph.runs and paragraph.runs[0].font.size:
             font_size = paragraph.runs[0].font.size.pt
         return font_size
 
     def most_common_font_size(self, presentation):
+        """
+        Find the most common font size in a PowerPoint presentation.
+        """
         font_sizes = []
 
         for slide in presentation.slides:
@@ -94,18 +108,23 @@ class PowerPointProcessor:
             if is_underline:
                 output_text += "  - Underline\n"
 
-        # Perform simple summarization
-        summary = self.simple_summarization(output_text)
-        
-        # Display the summary in the textbox
+        # Perform GPT-2 summarization
+        gpt2_summary = self.gpt2_summarization(output_text)
+
+        # Display the GPT-2 summary in the textbox
         self.textbox.delete("1.0", "end")
-        self.textbox.insert("1.0", summary)
+        self.textbox.insert("1.0", gpt2_summary)
 
         # Print a message about the summarization
-        print("Textfile successfully summuraised!")
+        print("Textfile successfully summarized using GPT-2!")
+
 
         if self.button_summurai[0]:
             self.button_summurai[0].configure(state="normal", command=lambda: self.process_powerpoint_file())
+
+
+
+# GUI class
 
 class GUI:
     def __init__(self):
