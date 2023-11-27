@@ -6,20 +6,14 @@ from collections import Counter
 def set_appearance_and_theme():
     customtkinter.set_appearance_mode("dark")
     customtkinter.set_default_color_theme("green")
-    
+
 def get_font_size(paragraph):
-    """
-    Get the font size of a paragraph in points.
-    """
     font_size = None
     if paragraph.runs and paragraph.runs[0].font.size:
         font_size = paragraph.runs[0].font.size.pt
     return font_size
 
 def most_common_font_size(presentation):
-    """
-    Find the most common font size in a PowerPoint presentation.
-    """
     font_sizes = []
 
     for slide in presentation.slides:
@@ -36,14 +30,10 @@ def most_common_font_size(presentation):
     else:
         return None
 
-# Edit of read.py here in new method
-def process_powerpoint_file(file_path, button_summurai):
+def process_powerpoint_file(file_path):
     formatted_lines = []
     output_text = ""
     prs = Presentation(file_path)
-
-    # Calculate the most common font size
-    common_font_size = most_common_font_size(prs)
     
     for slide in prs.slides:
         for shape in slide.shapes:
@@ -61,63 +51,68 @@ def process_powerpoint_file(file_path, button_summurai):
                         "is_underline": run.font.underline,
                     }
 
-                    # Check if the line is Key Text based on font size
+                    common_font_size = most_common_font_size(prs)
                     if font_size is not None and font_size > 1.1 * common_font_size:
                         line_info["is_key_text"] = True
 
-                    # Check if the line is a title based on its position in the slide
                     if shape == slide.shapes[0]:
                         line_info["is_key_text"] = True
 
                     formatted_lines.append(line_info)
 
-    for line_info in formatted_lines:
-        text = line_info["text"]
-        is_key_text = line_info["is_key_text"]
-        is_bold = line_info["is_bold"]
-        is_italic = line_info["is_italic"]
-        is_underline = line_info["is_underline"]
+    return formatted_lines
 
-        output_text += "\n"
-        if is_key_text:
-            output_text += f"Key Text: {text}\n"
-        else:
-            output_text += f"Text: {text}\n"
+def process_and_save_powerpoint_info(file_path):
+    lines_info = process_powerpoint_file(file_path)
 
-        if is_bold:
-            output_text += "  - Bold\n"
-        if is_italic:
-            output_text += "  - Italic\n"
-        if is_underline:
-            output_text += "  - Underline\n"
+    # Find the first key text
+    first_key_text = None
+    for line_info in lines_info:
+        if line_info["is_key_text"]:
+            first_key_text = line_info["text"]
+            break
 
-    textbox.delete("1.0", "end")
-    textbox.insert("1.0", output_text)
-    print(f"PowerPoint file processed successfully. Content displayed in the textbox.")
-    if button_summurai[0]:
-        button_summurai[0].configure(state="normal", command=lambda: process_powerpoint_file(file_path, button_summurai))
+    if not first_key_text:
+        print("No key text found. Unable to determine file name.")
+        return
 
-def select_pptx_file(button_summurai):
+    # Use the first key text as the name of the output text file
+    file_name = f"{first_key_text.replace(' ', '_')}.txt"
+    save_path = file_name
+
+    with open(save_path, "w", encoding="utf-8") as file:
+        for line_info in lines_info:
+            text = line_info["text"]
+            is_key_text = line_info["is_key_text"]
+            is_bold = line_info["is_bold"]
+            is_italic = line_info["is_italic"]
+            is_underline = line_info["is_underline"]
+
+            file.write("\n")
+            if is_key_text:
+                file.write(f"Key Text: {text}\n")
+            else:
+                file.write(f"Text: {text}\n")
+
+            if is_bold:
+                file.write("  - Bold\n")
+            if is_italic:
+                file.write("  - Italic\n")
+            if is_underline:
+                file.write("  - Underline\n")
+
+    print(f"PowerPoint file processed successfully. Content saved to {save_path}.")
+
+def select_pptx_file():
     file_path = filedialog.askopenfilename(
         title="Select a .pptx file",
         filetypes=[("PowerPoint files", "*.pptx")]
     )
     if file_path:
         label.configure(text='SUCCESS: Selected PowerPoint file', font=("Helvetica", 24))
-        create_summurai_button(file_path, button_summurai)
-        if button_summurai[0]:
-            button_summurai[0].configure(state="normal", command=lambda: process_powerpoint_file(file_path, button_summurai))
+        process_and_save_powerpoint_info(file_path)
     else:
         label.configure(text='No file selected', font=("Helvetica", 24))
-
-def create_summurai_button(file_path, button_summurai):
-    if not button_summurai[0]:
-        button = customtkinter.CTkButton(master=frame, text="SummurAI", state="disabled")
-        button.pack(pady=20, padx=0)
-        button_summurai[0] = button
-        print("SummurAI button created")
-    else:
-        button_summurai[0].configure(command=lambda: process_powerpoint_file(file_path, button_summurai))
 
 def main():
     set_appearance_and_theme()
@@ -135,8 +130,8 @@ def main():
     label.pack(pady=20, padx=0)
 
     global button_summurai
-    button_summurai = [None]  
-    button = customtkinter.CTkButton(master=frame, text="Select PowerPoint File", command=lambda: select_pptx_file(button_summurai))
+    button_summurai = None
+    button = customtkinter.CTkButton(master=frame, text="Select PowerPoint File", command=select_pptx_file)
     button.pack(pady=20, padx=0)
     print("Select PowerPoint File button created")
 

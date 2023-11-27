@@ -1,0 +1,26 @@
+
+Key Text: Sample PowerPoint File
+
+Text: St.
+
+Text:  Cloud Technical College
+
+Key Text: This is a
+
+Key Text:  Sample Slide
+
+Text: Here is
+
+Text:  an outline of bulleted points
+
+Text: You can print out PPT files as handouts using 
+
+Text: the 
+
+Text: PRINT > 
+
+Text:   PRINT 
+
+Text: WHAT > HANDOUTS
+
+Text:  option
