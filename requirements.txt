@@ -1,5 +1,2 @@
-nltk
-tkinterdnd2
-customtkinter
 python-pptx
 transformer

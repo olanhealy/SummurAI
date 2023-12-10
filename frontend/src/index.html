@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Summarize PPTX File</title>
+  <!-- Update the path to the CSS file if needed -->
+  <link rel="stylesheet" href="src/styles/main.css">
+</head>
+<body>
+  <div class="container">
+    <h1>PowerPoint Summarizer</h1>
+    <p>Select a .pptx file to get a summarized text.</p>
+    <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
+      <input type="file" name="file" accept=".pptx" />
+      <button type="submit">Summarize</button>
+    </form>
+    
+    <div id="summary">Summary will appear here...</div>
+  </div>
+
+  <!-- Make sure to update the path to your JavaScript file if needed -->
+  <script src="src/scripts/index.js"></script>
+</body>
+</html>
